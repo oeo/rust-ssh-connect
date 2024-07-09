@@ -6,7 +6,7 @@ mod config;
 use config::{ConnectionInfo, load_config, find_ssh_keys};
 
 #[derive(Parser)]
-#[clap(version = "1.0", author = "Your Name")]
+#[clap(version = "1.0")]
 struct Opts {
     /// ip address of the server to connect to
     #[clap(name = "server")]
@@ -55,11 +55,12 @@ fn main() {
 
     for combo in &mut combos {
         if try_connect(combo) {
+            info!("connected {}@{}", combo.username, combo.host);
             process::exit(0);
         }
     }
 
-    error!("finished (unable to connect)");
+    error!("failed to connect");
     process::exit(1);
 }
 
@@ -108,6 +109,7 @@ fn try_connect(info: &ConnectionInfo) -> bool {
         .arg("-o").arg("BatchMode=yes")
         .arg("-o").arg("StrictHostKeyChecking=no")
         .arg("-o").arg("NumberOfPasswordPrompts=0")
+        .arg("-o").arg("ConnectTimeout=3")
         .arg("-v")
         .arg("exit")
         .output();
@@ -116,20 +118,18 @@ fn try_connect(info: &ConnectionInfo) -> bool {
         Ok(output) => {
             let stderr = String::from_utf8_lossy(&output.stderr);
             if output.status.success() {
-                info!("connected: {} (copied)", connection_string);
-                copy_to_clipboard(&connection_string);
                 true
             } else {
-                warn!("connection failed:");
                 if stderr.contains("Permission denied") {
-                    warn!("authentication failed. the provided key was not accepted.");
+                    warn!("authentication failed for {}@{}", info.username, info.host);
                 } else if stderr.contains("Connection refused") {
-                    warn!("the server refused the connection. it might be down or not accepting connections on this port.");
+                    warn!("connection refused for {}@{}", info.username, info.host);
                 } else if stderr.contains("Connection timed out") {
-                    warn!("the connection attempt timed out. the server might be unreachable.");
+                    warn!("connection timed out for {}@{}", info.username, info.host);
+                } else if stderr.contains("Bad host") {
+                    warn!("bad host: {}@{}", info.username, info.host);
                 } else {
-                    warn!("unknown error. full output:");
-                    warn!("{}", stderr);
+                    warn!("unknown error connecting to {}@{}", info.username, info.host);
                 }
                 false
             }
@@ -140,20 +140,3 @@ fn try_connect(info: &ConnectionInfo) -> bool {
         }
     }
 }
-
-fn copy_to_clipboard(text: &str) {
-    if cfg!(target_os = "macos") {
-        let mut process = process::Command::new("pbcopy")
-            .stdin(process::Stdio::piped())
-            .spawn()
-            .expect("failed to spawn pbcopy");
-
-        if let Some(mut stdin) = process.stdin.take() {
-            use std::io::Write;
-            stdin.write_all(text.as_bytes()).expect("failed to write to stdin");
-        }
-    } else {
-        println!("clipboard functionality not implemented for this os");
-    }
-}
-
