@@ -7,7 +7,6 @@ Rust SSH Connect is a command-line tool that attempts to establish SSH connectio
 - Attempts connections using multiple SSH keys found in the user's `.ssh` directory
 - Configurable usernames and ports
 - Verbose and quiet modes for different levels of output
-- Automatic copying of successful connection strings to clipboard (macOS only)
 - Configuration via TOML file and environment variables
 
 ## Installation
@@ -26,6 +25,11 @@ Rust SSH Connect is a command-line tool that attempts to establish SSH connectio
    ```
 
 4. The binary will be available at `target/release/rust-ssh-connect`
+
+5. Optionally install globally:
+   ```
+   cargo install --path .
+   ```
 
 ## Usage
 
