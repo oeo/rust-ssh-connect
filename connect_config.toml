@@ -1,0 +1,15 @@
+[ssh]
+certs = [
+  "~/keys/key.prv",
+  "~/keys/shared.pem"
+]
+
+ports = [
+  22, 
+  2222
+]
+
+users = [
+  "ec2-user",
+  "ubuntu"
+]
