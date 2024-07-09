@@ -8,27 +8,27 @@ use config::{ConnectionInfo, load_config, find_ssh_keys};
 #[derive(Parser)]
 #[clap(version = "1.0", author = "Your Name")]
 struct Opts {
-    /// IP address of the server to connect to
-    #[clap(name = "SERVER")]
+    /// ip address of the server to connect to
+    #[clap(name = "server")]
     server: String,
 
-    /// Username for SSH connection
+    /// username for ssh connection
     #[clap(short, long)]
     username: Option<String>,
 
-    /// Path to the SSH key file
+    /// path to the ssh key file
     #[clap(short, long)]
     key_file: Option<String>,
 
-    /// Verbose mode
+    /// verbose mode
     #[clap(short, long)]
     verbose: bool,
 
-    /// Quiet mode
+    /// quiet mode
     #[clap(short, long)]
     quiet: bool,
 
-    /// List available SSH keys
+    /// list available ssh keys
     #[clap(long)]
     list_keys: bool,
 }
@@ -37,7 +37,7 @@ fn main() {
     let opts: Opts = Opts::parse();
 
     if opts.list_keys {
-        println!("Available SSH keys:");
+        println!("available ssh keys:");
         for key in find_ssh_keys() {
             println!("  {}", key);
         }
@@ -59,7 +59,7 @@ fn main() {
         }
     }
 
-    error!("Finished (unable to connect)");
+    error!("finished (unable to connect)");
     process::exit(1);
 }
 
@@ -99,7 +99,7 @@ fn generate_combos(server: &str, ssh_config: &config::SshConfig, username: &str,
 fn try_connect(info: &ConnectionInfo) -> bool {
     let connection_string = format!("ssh -i {} {}@{} -p{}",
                                     info.private_key, info.username, info.host, info.port);
-    info!("Trying: {}", connection_string);
+    info!("trying: {}", connection_string);
 
     let output = std::process::Command::new("ssh")
         .arg("-i").arg(&info.private_key)
@@ -116,26 +116,26 @@ fn try_connect(info: &ConnectionInfo) -> bool {
         Ok(output) => {
             let stderr = String::from_utf8_lossy(&output.stderr);
             if output.status.success() {
-                info!("Connected: {} (copied)", connection_string);
+                info!("connected: {} (copied)", connection_string);
                 copy_to_clipboard(&connection_string);
                 true
             } else {
-                warn!("Connection failed. Reason:");
+                warn!("connection failed:");
                 if stderr.contains("Permission denied") {
-                    warn!("Authentication failed. The provided key was not accepted.");
+                    warn!("authentication failed. the provided key was not accepted.");
                 } else if stderr.contains("Connection refused") {
-                    warn!("The server refused the connection. It might be down or not accepting connections on this port.");
+                    warn!("the server refused the connection. it might be down or not accepting connections on this port.");
                 } else if stderr.contains("Connection timed out") {
-                    warn!("The connection attempt timed out. The server might be unreachable.");
+                    warn!("the connection attempt timed out. the server might be unreachable.");
                 } else {
-                    warn!("Unknown error. Full debug output:");
+                    warn!("unknown error. full output:");
                     warn!("{}", stderr);
                 }
                 false
             }
         },
         Err(e) => {
-            error!("Failed to execute SSH command: {}", e);
+            error!("failed to execute ssh command: {}", e);
             false
         }
     }
@@ -146,14 +146,14 @@ fn copy_to_clipboard(text: &str) {
         let mut process = process::Command::new("pbcopy")
             .stdin(process::Stdio::piped())
             .spawn()
-            .expect("Failed to spawn pbcopy process");
+            .expect("failed to spawn pbcopy");
 
         if let Some(mut stdin) = process.stdin.take() {
             use std::io::Write;
-            stdin.write_all(text.as_bytes()).expect("Failed to write to stdin");
+            stdin.write_all(text.as_bytes()).expect("failed to write to stdin");
         }
     } else {
-        println!("Clipboard functionality not implemented for this OS");
+        println!("clipboard functionality not implemented for this os");
     }
 }
 

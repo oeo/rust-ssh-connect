@@ -31,15 +31,15 @@ Rust SSH Connect is a command-line tool that attempts to establish SSH connectio
 
 Basic usage:
 ```
-rust-ssh-connect <SERVER_IP>
+rust-ssh-connect <server_ip>
 ```
 
 Options:
-- `-u, --username <USERNAME>`: Specify a username
-- `-k, --key-file <KEY_FILE>`: Specify a key file
-- `-v, --verbose`: Enable verbose output
-- `-q, --quiet`: Enable quiet mode (only errors)
-- `--list-keys`: List available SSH keys
+- `-u, --username <username>`: specify a username
+- `-k, --key-file <key_file>`: specify a key file
+- `-v, --verbose`: enable verbose output
+- `-q, --quiet`: enable quiet mode (only errors)
+- `--list-keys`: list available ssh keys
 
 Examples:
 ```
